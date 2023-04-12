@@ -23,12 +23,6 @@ class _NotesViewState extends State<NotesView> {
   }
 
   @override
-  void dispose() {
-    _notesService.close();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -80,7 +74,33 @@ class _NotesViewState extends State<NotesView> {
                   switch (snapshot.connectionState) {
                     case ConnectionState.waiting:
                     case ConnectionState.active:
-                      return const Text('Waiting for all notes...');
+                      if (snapshot.hasData) {
+                        final allNotes = snapshot.data as List<DatabaseNote>;
+                        print(allNotes);
+                        if (allNotes.isNotEmpty) {
+                          return ListView.separated(
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(
+                                    allNotes[index].text,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  trailing: IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.delete),
+                                  ),
+                                );
+                              },
+                              separatorBuilder: (context, _) => const Divider(),
+                              itemCount: allNotes.length);
+                        } else {
+                          return const Text('There is not item on the list.');
+                        }
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
                     default:
                       return const CircularProgressIndicator();
                   }
