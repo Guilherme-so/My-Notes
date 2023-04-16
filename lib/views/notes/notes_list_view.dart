@@ -20,31 +20,44 @@ class NotesListVliew extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.separated(
+      itemCount: notes.length,
       itemBuilder: (context, index) {
         final note = notes.elementAt(index);
-        return ListTile(
-          onTap: () {
-            onTap(note);
+        return Dismissible(
+          key: Key(note.documentId),
+          onDismissed: (direction) {
+            // / on swipe for any side, delete note
+            onDeleteNote(note);
+            //Snackbar on the botton with the note text
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Deleted : ${note.text}'),
+              ),
+            );
           },
-          title: Text(
-            note.text,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-          ),
-          trailing: IconButton(
-            onPressed: () async {
-              final showDelete = await showDeleteDialog(context);
-              if (showDelete) {
-                onDeleteNote(note);
-              }
+          child: ListTile(
+            onTap: () {
+              onTap(note);
             },
-            icon: const Icon(Icons.delete),
+            title: Text(
+              note.text,
+              maxLines: 1,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+            ),
+            trailing: IconButton(
+              onPressed: () async {
+                final showDelete = await showDeleteDialog(context);
+                if (showDelete) {
+                  onDeleteNote(note);
+                }
+              },
+              icon: const Icon(Icons.delete),
+            ),
           ),
         );
       },
       separatorBuilder: (context, _) => const Divider(),
-      itemCount: notes.length,
     );
   }
 }
